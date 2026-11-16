@@ -7,10 +7,12 @@ class MyHomePage extends StatelessWidget {
   final String nama = "Burhan";
   final String kelas = "PBP A";
 
+  // Menu aksi mengikuti bagian Experience yang dikerjakan di Tugas 3-6.
+  // Setiap tombol punya warna latar sendiri supaya mudah dibedakan.
   final List<ItemHomepage> items = [
-    ItemHomepage("Lihat Proyek", Icons.folder),
-    ItemHomepage("Tambah Proyek", Icons.add_circle),
-    ItemHomepage("Logout", Icons.logout),
+    ItemHomepage("Lihat Experience", Icons.work_history, Colors.blue.shade700),
+    ItemHomepage("Tambah Experience", Icons.add_circle, Colors.green.shade700),
+    ItemHomepage("Logout", Icons.logout, Colors.red.shade700),
   ];
 
   @override
@@ -116,11 +118,15 @@ class InfoCard extends StatelessWidget {
   }
 }
 
+/// Model data untuk satu tombol aksi di halaman utama.
 class ItemHomepage {
   final String name;
   final IconData icon;
 
-  ItemHomepage(this.name, this.icon);
+  /// Warna latar kartu, disimpan di model agar ItemCard tidak perlu if-else.
+  final Color color;
+
+  ItemHomepage(this.name, this.icon, this.color);
 }
 
 class ItemCard extends StatelessWidget {
@@ -131,8 +137,8 @@ class ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      // Menggunakan warna sekunder dari skema tema aplikasi.
-      color: Theme.of(context).colorScheme.secondary,
+      // Warna latar diambil dari model, jadi tiap tombol bisa berbeda.
+      color: item.color,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         // Aksi ketika kartu ditekan oleh pengguna.
