@@ -10,6 +10,9 @@ void main() {
     expect(find.text('NPM'), findsOneWidget);
     expect(find.text('Name'), findsOneWidget);
     expect(find.text('Class'), findsOneWidget);
+    expect(find.text('2506585731'), findsOneWidget);
+    expect(find.text('Muhammad Farel Ammar'), findsOneWidget);
+    expect(find.text('PBP F'), findsOneWidget);
     expect(find.text('Lihat Experience'), findsOneWidget);
     expect(find.text('Tambah Experience'), findsOneWidget);
     expect(find.text('Logout'), findsOneWidget);

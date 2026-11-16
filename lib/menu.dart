@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
 
-  final String npm = "2406000001";
-  final String nama = "Burhan";
-  final String kelas = "PBP A";
+  // Data identitas pemilik portofolio yang tampil di tiga InfoCard.
+  final String npm = "2506585731";
+  final String nama = "Muhammad Farel Ammar";
+  final String kelas = "PBP F";
 
   // Menu aksi mengikuti bagian Experience yang dikerjakan di Tugas 3-6.
   // Setiap tombol punya warna latar sendiri supaya mudah dibedakan.
