@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:myportofolio_mobile/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('Halaman utama menampilkan kartu profil dan tombol aksi',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('NPM'), findsOneWidget);
+    expect(find.text('Name'), findsOneWidget);
+    expect(find.text('Class'), findsOneWidget);
+    expect(find.text('Lihat Experience'), findsOneWidget);
+    expect(find.text('Tambah Experience'), findsOneWidget);
+    expect(find.text('Logout'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('Menekan tombol aksi memunculkan SnackBar sesuai nama tombol',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    for (final name in ['Lihat Experience', 'Tambah Experience', 'Logout']) {
+      await tester.tap(find.text(name));
+      await tester.pump();
+      expect(find.text('Kamu telah menekan tombol $name!'), findsOneWidget);
+    }
   });
 }
