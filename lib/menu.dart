@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myportofolio_mobile/project_form.dart';
+import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -13,6 +15,7 @@ class MyHomePage extends StatelessWidget {
   final List<ItemHomepage> items = [
     ItemHomepage("Lihat Experience", Icons.work_history, Colors.blue.shade700),
     ItemHomepage("Tambah Experience", Icons.add_circle, Colors.green.shade700),
+    ItemHomepage("Tambah Proyek", Icons.post_add, Colors.orange.shade800),
     ItemHomepage("Logout", Icons.logout, Colors.red.shade700),
   ];
 
@@ -30,7 +33,10 @@ class MyHomePage extends StatelessWidget {
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+      // Drawer berisi navigasi ke halaman utama dan form tambah proyek.
+      drawer: const LeftDrawer(),
       // Body dibatasi lebarnya dan bisa di-scroll, supaya tetap rapi di layar
       // HP maupun di jendela Chrome yang lebar (tidak muncul BOTTOM OVERFLOWED).
       body: Center(
@@ -148,6 +154,15 @@ class ItemCard extends StatelessWidget {
             ..showSnackBar(
               SnackBar(content: Text("Kamu telah menekan tombol ${item.name}!")),
             );
+
+          // Navigate ke halaman yang sesuai. push() menaruh form di atas menu,
+          // jadi tombol Back membawa pengguna kembali ke menu.
+          if (item.name == "Tambah Proyek") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProjectFormPage()),
+            );
+          }
         },
         child: Container(
           padding: const EdgeInsets.all(8),
