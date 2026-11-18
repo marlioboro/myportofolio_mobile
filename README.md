@@ -19,6 +19,7 @@ Kalau mau dijalanin di HP Android, colok HP dengan USB debugging aktif (atau nya
 | --- | --- |
 | Tutorial 08 | Setup Flutter, pisahin `menu.dart` dari `main.dart`, `MyHomePage` jadi stateless, bikin `InfoCard` dan `ItemCard` buat contoh Burhan. |
 | Tugas 7 | Ganti data jadi punyaku sendiri, tombol aksi buat bagian Experience dengan warna beda-beda, layout yang aman di layar lebar, dan widget test. |
+| Tutorial 09 | Drawer menu (Home dan Add Project), form tambah proyek dengan validasi dan dropdown kategori, dialog berisi data yang diisi, tombol Tambah Proyek yang membuka form lewat `Navigator.push`, serta refactor ke folder `screens/` dan `widgets/`. |
 
 ### Tugas 7
 
