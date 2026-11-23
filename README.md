@@ -20,6 +20,7 @@ Kalau mau dijalanin di HP Android, colok HP dengan USB debugging aktif (atau nya
 | Tutorial 08 | Setup Flutter, pisahin `menu.dart` dari `main.dart`, `MyHomePage` jadi stateless, bikin `InfoCard` dan `ItemCard` buat contoh Burhan. |
 | Tugas 7 | Ganti data jadi punyaku sendiri, tombol aksi buat bagian Experience dengan warna beda-beda, layout yang aman di layar lebar, dan widget test. |
 | Tutorial 09 | Drawer menu (Home dan Add Project), form tambah proyek dengan validasi dan dropdown kategori, dialog berisi data yang diisi, tombol Tambah Proyek yang membuka form lewat `Navigator.push`, serta refactor ke folder `screens/` dan `widgets/`. |
+| Tugas 8 | Form tambah Experience sesuai model Django (judul, deskripsi, kategori, URL thumbnail, tanggal selesai), validator terpisah di `lib/utils/`, kartu dan opsi drawer buat buka form, dialog ringkasan, dan test. |
 
 ### Tugas 7
 
@@ -107,3 +108,55 @@ Catatan keterbatasan AI dan perbaikan manual:
 - Claude nggak bisa jalanin Flutter di lingkungannya (download Dart SDK diblokir jaringan), jadi semua hasil analyze, test, dan tampilan aku cek sendiri di laptop.
 - Waktu tes di Chrome, layout dari Tutorial 08 kegedean di jendela lebar dan muncul pita "BOTTOM OVERFLOWED". Dari situ aku minta layout-nya dibatasi lebarnya dan dibikin bisa di-scroll.
 - Test bawaan Flutter masih ngecek counter yang udah nggak ada, jadi pasti gagal kalau dijalanin. Test itu aku ganti, bukan dibiarin.
+
+### Tugas 8
+
+Yang aku kerjain di Tugas 8:
+
+- Halaman baru `lib/screens/experience_form.dart` buat nambah Experience. Field-nya ngikutin model `Experience` di Django: judul (maks 255 karakter), deskripsi, kategori (pilihannya sama persis kayak `EXPERIENCE_CHOICES`), URL thumbnail opsional, dan tanggal selesai lewat `showDatePicker()` yang cuma muncul kalau saklar "Masih berlangsung" dimatiin.
+- Aturan validasinya aku pisahin ke `lib/utils/experience_validators.dart`, jadi gampang dibaca dan bisa dites tanpa UI. Isian kosong, cuma spasi, atau cuma tag HTML ditolak (kayak `strip_tags` di Django), URL harus `http://` atau `https://`, dan tanggal selesai wajib dipilih kalau experience udah selesai serta nggak boleh lewat hari ini.
+- Kartu "Tambah Experience" di halaman utama sekarang buka form pake `Navigator.push()`. Drawer dapet opsi "Add Experience" di samping Home dan Add Project, dan drawer yang sama dipake di halaman utama, form proyek, dan form experience.
+- Setelah tombol Simpan ditekan dan semua input lolos, ringkasan isian muncul di `AlertDialog` dengan tombol Tutup buat balik ke form.
+- Tambahan di luar checklist: saklar "Masih berlangsung" yang nyembunyiin/nampilin field tanggal, ikon di tiap input, penghitung karakter judul, keyboard URL buat thumbnail, dan layout yang dibatasi lebarnya biar rapi di Chrome.
+- Test: `test/experience_form_test.dart` ngecek buka form dari kartu dan drawer, balik lewat Back dan Home, input kosong/spasi/tag/URL salah/tanggal kosong, sama isi dialog. `test/experience_validators_test.dart` ngetes tiap validator.
+
+1. **Bedanya `push()`, `pushReplacement()`, `pop()`, dan gimana Home balik ke halaman utama**
+
+   Awalnya aku kira tiga-tiganya sama aja, sama-sama buat pindah halaman. Ternyata `Navigator` itu nyimpen halaman kayak tumpukan. `push()` naruh halaman baru di atas tumpukan, jadi halaman lama masih ada di bawahnya. `pushReplacement()` ngeganti halaman paling atas sama halaman baru, jadi yang lama dibuang. Kalau `pop()`, halaman paling atas dibuang dan kita balik ke halaman di bawahnya.
+
+   Buat kartu "Tambah Experience" aku pake `push()`, soalnya pas lagi ngisi form, user pasti pengen bisa balik ke menu pake tombol Back di HP atau browser. Opsi Home di drawer pake `pushReplacement()` ke `MyHomePage`, jadi halaman form yang lagi kebuka langsung diganti sama halaman utama. Pas aku cek lagi, ternyata ada efek sampingnya: kalau form dibuka dari kartu, tumpukannya jadi menu lama -> menu baru. Tampilannya tetep halaman utama, cuma ada satu menu lama nyangkut di bawah. Kalau form dibuka dari drawer, tumpukannya bersih karena dua-duanya pake `pushReplacement()`. Kalau nanti pengen bener-bener bersih dari mana pun, bisa ganti pake `Navigator.pushAndRemoveUntil()`.
+
+2. **Gimana `Scaffold`, `AppBar`, dan `Drawer` bikin halaman konsisten**
+
+   `Scaffold` itu kayak cetakan halaman. Udah ada tempat buat `AppBar` di atas, drawer di kiri, dan isi halaman di tengah. Karena halaman utama, form proyek, dan form experience sama-sama pake cetakan ini plus `LeftDrawer` yang sama, judul halaman sama tombol menu selalu ada di posisi yang sama. Enaknya lagi, waktu aku nambahin opsi "Add Experience", aku cukup ubah `LeftDrawer` sekali dan semua halaman langsung kebagian.
+
+   Contoh warna tema yang aku pake di lebih dari satu halaman itu `colorScheme.primary`, yang asalnya dari seed color indigo di `main.dart`. Warna ini dipake buat `AppBar` di halaman utama, `AppBar` di form experience, sama tombol Simpan. Jadi kalau suatu saat aku ganti seed color-nya, semua bagian itu ikut berubah bareng tanpa harus diubah satu-satu.
+
+3. **Kenapa layout form-nya kayak gitu**
+
+   Form aku susun dari atas ke bawah pake `Column`, satu input per baris, biar urutannya enak dibaca kayak ngisi formulir biasa. Semua input sama tombol Simpan dibikin selebar form, tapi lebarnya aku batasin maksimal 560 biar nggak melar kebangetan pas dibuka di Chrome.
+
+   Yang paling kerasa pas nyoba di layar ukuran HP: begitu keyboard muncul, ruang buat form jadi sempit banget. Kalau pake `Column` doang, bakal muncul error overflow dan tombol Simpan ketutup keyboard. Solusinya aku bungkus pake `SingleChildScrollView`, jadi form bisa di-scroll dan tombol Simpan tetep bisa dijangkau. Keyboard-nya juga otomatis nutup pas form di-scroll. Buat jarak, aku pake `SizedBox` di antara input dan `padding` di pinggir, biar pesan error di bawah satu kolom nggak nempel sama kolom berikutnya. `SafeArea` aku tambahin biar isi form nggak ketutup notch atau status bar HP.
+
+4. **Peran `GlobalKey<FormState>`, `validator`, dan `validate()`**
+
+   `GlobalKey<FormState>` itu pegangan buat widget `Form`, jadi dari tombol Simpan aku bisa ngakses form-nya. Tiap input punya `validator`, isinya aturan buat ngecek isian itu. Kalau aman, `validator` ngebalikin `null`. Kalau nggak, dia ngebalikin pesan error. Pas tombol Simpan ditekan, `validate()` jalanin semua `validator` sekaligus, nampilin pesan error di kolom yang salah, dan cuma ngebalikin `true` kalau semuanya lolos. Dialog ringkasan baru aku munculin kalau hasilnya `true`.
+
+   Contoh isian yang ditolak itu URL thumbnail `bukan-url`. Kolom itu udah aku set pake keyboard URL, tapi itu cuma ngatur keyboard yang muncul di HP biar ada tombol `/` sama `.com`. User tetep bisa ngetik atau paste apa aja, dan di Chrome malah nggak ada keyboard khusus sama sekali. Makanya formatnya tetep harus dicek di `validator`. Hal yang sama berlaku buat judul yang isinya cuma spasi atau cuma tag kayak `<b></b>`. Kolom teks nerima input itu, tapi kalau spasi dan tag-nya dibuang, isinya kosong, jadi tetep ditolak.
+
+#### Penggunaan AI
+
+Aku pake Claude buat bantu Tugas 8. Strateginya sama kayak sebelumnya: Claude baca checklist Tugas 8 dan model `Experience` di proyek Django dulu, terus ngerjain perubahannya satu per satu dengan commit terpisah (form, navigasi, test, docs).
+
+Bagian yang dibantu AI:
+- nyusun `ExperienceFormPage` dan nyamain field serta kategorinya sama model Django;
+- misahin validator ke `lib/utils/` dan nulis unit test-nya;
+- nambahin kartu dan opsi drawer, serta widget test buat alur navigasinya;
+- nyusun draf jawaban reflektif di atas.
+
+Aku sendiri yang milih Experience sebagai bagian yang dibikin form-nya (nyambung sama Tugas 3–7), terus jalanin `flutter analyze`, `flutter test`, dan nyoba alur form di Chrome dengan ukuran layar HP.
+
+Catatan keterbatasan AI dan perbaikan manual:
+- Claude tetep nggak bisa jalanin Flutter di lingkungannya, jadi hasil analyze, test, dan tampilan dicek di laptopku.
+- Waktu nulis test dialog, versi awal nyari teks ringkasan di seluruh layar. Itu bakal salah karena teks yang sama juga ada di TextFormField di belakang dialog. Test-nya dibenerin biar cuma nyari di dalam `AlertDialog`.
+- Waktu nyusun jawaban nomor 1, Claude nunjukin kalau opsi Home pake `pushReplacement()` ninggalin satu halaman menu lama di stack kalau form dibuka dari kartu. Aku cek alurnya, terus aku tulis apa adanya di jawaban, bukan diklaim stack-nya selalu bersih.
