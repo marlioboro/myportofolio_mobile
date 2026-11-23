@@ -28,7 +28,8 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
 
-    for (final name in ['Lihat Experience', 'Tambah Experience', 'Logout']) {
+    // Tambah Experience dan Tambah Proyek membuka form, jadi diuji terpisah.
+    for (final name in ['Lihat Experience', 'Logout']) {
       await tester.ensureVisible(find.text(name));
       await tester.tap(find.text(name));
       await tester.pump();
