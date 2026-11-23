@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 
 /// Kartu tombol aksi di halaman utama. Warna latar diambil dari
-/// ItemHomepage.color, dan tombol Tambah Proyek membuka ProjectFormPage.
+/// ItemHomepage.color. Tombol Tambah Proyek dan Tambah Experience membuka
+/// form masing-masing lewat Navigator.push().
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
 
@@ -31,6 +33,13 @@ class ItemCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ProjectFormPage()),
+            );
+          } else if (item.name == "Tambah Experience") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ExperienceFormPage(),
+              ),
             );
           }
         },
