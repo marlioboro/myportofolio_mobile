@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:myportofolio_mobile/main.dart';
+import 'helpers.dart';
 
 const formTitle = 'Add Experience Form';
 const menuGreeting = 'Selamat datang di MyPortfolio Mobile!';
 
 Future<void> openFormFromCard(WidgetTester tester) async {
-  await tester.pumpWidget(const MyApp());
+  await tester.pumpWidget(buildTestApp());
   await tester.ensureVisible(find.text('Tambah Experience'));
   await tester.tap(find.text('Tambah Experience'));
   await tester.pumpAndSettle();
@@ -44,7 +44,7 @@ void main() {
 
   testWidgets('Drawer membuka form, lalu Home dari form kembali ke menu',
       (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(buildTestApp());
 
     await tester.tap(find.byTooltip('Open navigation menu'));
     await tester.pumpAndSettle();

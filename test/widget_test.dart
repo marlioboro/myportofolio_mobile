@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 
-import 'package:myportofolio_mobile/main.dart';
+import 'package:myportofolio_mobile/screens/project_form.dart';
+
+import 'helpers.dart';
 
 void main() {
-  testWidgets('Halaman utama menampilkan kartu profil dan tombol aksi',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Halaman utama menampilkan kartu profil dan tombol aksi', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(buildTestApp());
 
-    expect(find.text('NPM'), findsOneWidget);
-    expect(find.text('Name'), findsOneWidget);
-    expect(find.text('Class'), findsOneWidget);
     expect(find.text('2506585731'), findsOneWidget);
     expect(find.text('Muhammad Farel Ammar'), findsOneWidget);
     expect(find.text('PBP F'), findsOneWidget);
@@ -24,11 +25,12 @@ void main() {
     }
   });
 
-  testWidgets('Menekan tombol aksi memunculkan SnackBar sesuai nama tombol',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Menekan tombol aksi memunculkan SnackBar sesuai nama tombol', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(buildTestApp());
 
-    // Tambah Experience dan Tambah Proyek membuka form, jadi diuji terpisah.
+    // Tambah Experience dan Tambah Proyek membuka halaman lain, jadi diuji terpisah.
     for (final name in ['Lihat Experience', 'Logout']) {
       await tester.ensureVisible(find.text(name));
       await tester.tap(find.text(name));
@@ -37,59 +39,93 @@ void main() {
     }
   });
 
-  testWidgets('Tombol Tambah Proyek membuka form dan Back kembali ke menu',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Tambah Proyek tanpa login membuka halaman Login', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(buildTestApp());
 
     await tester.ensureVisible(find.text('Tambah Proyek'));
     await tester.tap(find.text('Tambah Proyek'));
     await tester.pumpAndSettle();
-    expect(find.text('Add Project Form'), findsOneWidget);
+    expect(find.text('Username'), findsWidgets);
+    expect(find.text('Add Project Form'), findsNothing);
 
-    // push() menyimpan menu di bawah form, jadi pageBack kembali ke menu.
+    // Batal login: kembali ke menu, form tidak dibuka.
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(find.text('Selamat datang di MyPortfolio Mobile!'), findsOneWidget);
   });
 
-  testWidgets('Drawer bisa membuka form tambah proyek',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Login lewat drawer lalu Add Project membuka form', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestApp((request) async {
+        if (request.url.path == '/api/v1/auth/token/') {
+          return http.Response('{"token": "abc123"}', 200);
+        }
+        return http.Response('[]', 200);
+      }),
+    );
 
     await tester.tap(find.byTooltip('Open navigation menu'));
     await tester.pumpAndSettle();
-    expect(find.text('Home'), findsOneWidget);
-
     await tester.tap(find.text('Add Project'));
     await tester.pumpAndSettle();
+
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'owner');
+    await tester.enterText(fields.at(1), 'rahasia');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Add Project Form'), findsOneWidget);
   });
 
-  testWidgets('Form menolak isian kosong lalu menampilkan data yang valid',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
-    await tester.ensureVisible(find.text('Tambah Proyek'));
-    await tester.tap(find.text('Tambah Proyek'));
-    await tester.pumpAndSettle();
+  testWidgets('Form proyek memvalidasi input lalu POST dengan token', (
+    WidgetTester tester,
+  ) async {
+    http.Request? sent;
+    final api = fakeApi((request) async {
+      sent = request;
+      return http.Response(sampleProjectJson, 201);
+    });
+    await tester.pumpWidget(
+      wrapPage(const ProjectFormPage(), api: api, token: 'abc123'),
+    );
 
-    final save = find.widgetWithText(ElevatedButton, 'Save');
+    final save = find.text('Save');
     await tester.ensureVisible(save);
     await tester.tap(save);
     await tester.pump();
-    expect(find.text('Nama proyek tidak boleh kosong!'), findsOneWidget);
-    expect(find.text('Deskripsi proyek tidak boleh kosong!'), findsOneWidget);
+    expect(find.text('Title tidak boleh kosong!'), findsOneWidget);
+    expect(sent, isNull);
 
-    await tester.enterText(
-        find.widgetWithText(TextFormField, 'Nama Proyek'), 'Sortify AI');
-    await tester.enterText(
-        find.widgetWithText(TextFormField, 'Deskripsi Proyek'),
-        'Klasifikasi sampah dengan AI.');
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'Sortify AI');
+    await tester.enterText(fields.at(1), 'Klasifikasi sampah dengan AI.');
+    await tester.enterText(fields.at(2), 'Developer');
+    await tester.enterText(fields.at(3), 'Flutter, Django');
+    await tester.enterText(fields.at(4), 'bukan-url');
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pump();
+    expect(
+      find.text('Masukkan URL valid (http:// atau https://).'),
+      findsOneWidget,
+    );
+    expect(sent, isNull);
+
+    await tester.enterText(fields.at(4), '');
     await tester.ensureVisible(save);
     await tester.tap(save);
     await tester.pumpAndSettle();
 
+    expect(sent, isNotNull);
+    expect(sent!.method, 'POST');
+    expect(sent!.headers['Authorization'], 'Token abc123');
+    expect(sent!.body, contains('"title":"Sortify AI"'));
+    expect(sent!.body, isNot(contains('"id"')));
     expect(find.text('Proyek berhasil ditambahkan!'), findsOneWidget);
-    expect(find.text('Nama Proyek: Sortify AI'), findsOneWidget);
-    expect(find.text('Kategori: Web Development'), findsOneWidget);
   });
 }
