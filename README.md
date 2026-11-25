@@ -6,9 +6,10 @@ Aplikasi mobile Flutter untuk portofolio pribadi Muhammad Farel Ammar. Aplikasi 
 
 ```powershell
 flutter pub get
+dart run build_runner build --delete-conflicting-outputs
 flutter analyze
 flutter test
-flutter run -d chrome
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000
 ```
 
 Kalau mau dijalanin di HP Android, colok HP dengan USB debugging aktif (atau nyalain emulator dari Android Studio), terus jalanin `flutter run`.
@@ -21,6 +22,7 @@ Kalau mau dijalanin di HP Android, colok HP dengan USB debugging aktif (atau nya
 | Tugas 7 | Ganti data jadi punyaku sendiri, tombol aksi buat bagian Experience dengan warna beda-beda, layout yang aman di layar lebar, dan widget test. |
 | Tutorial 09 | Drawer menu (Home dan Add Project), form tambah proyek dengan validasi dan dropdown kategori, dialog berisi data yang diisi, tombol Tambah Proyek yang membuka form lewat `Navigator.push`, serta refactor ke folder `screens/` dan `widgets/`. |
 | Tugas 8 | Form tambah Experience sesuai model Django (judul, deskripsi, kategori, URL thumbnail, tanggal selesai), validator terpisah di `lib/utils/`, kartu dan opsi drawer buat buka form, dialog ringkasan, dan test. |
+| Tutorial 10 | Login token ke Django (`/api/v1/auth/token/` dan `/api/v1/auth/logout/`), `ApiClient` + model `Project` hasil `json_serializable`, daftar dan detail proyek dari API pakai `FutureBuilder`, form proyek yang POST pakai token, route guard `ensureLoggedIn`, dan CI GitHub Actions. |
 
 ### Tugas 7
 
