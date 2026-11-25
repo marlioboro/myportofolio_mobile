@@ -60,7 +60,8 @@ String? validateThumbnailUrl(String? value) {
     return 'URL maksimal $thumbnailUrlMaxLength karakter.';
   }
   final uri = Uri.tryParse(text);
-  final isValid = uri != null &&
+  final isValid =
+      uri != null &&
       (uri.scheme == 'http' || uri.scheme == 'https') &&
       uri.host.contains('.');
   if (!isValid) {

@@ -7,7 +7,10 @@ void main() {
     test('menolak kosong, spasi, dan isi yang cuma tag HTML', () {
       expect(validateExperienceTitle(null), isNotNull);
       expect(validateExperienceTitle('   '), isNotNull);
-      expect(validateExperienceTitle('<img src=x onerror=alert(1)>'), isNotNull);
+      expect(
+        validateExperienceTitle('<img src=x onerror=alert(1)>'),
+        isNotNull,
+      );
     });
 
     test('menolak judul lebih dari 255 karakter', () {
@@ -69,8 +72,7 @@ void main() {
 
     test('boleh hari ini atau sebelumnya, tidak boleh setelah hari ini', () {
       expect(
-        validateEndedAt(DateTime(2026, 11, 23),
-            isOngoing: false, today: today),
+        validateEndedAt(DateTime(2026, 11, 23), isOngoing: false, today: today),
         isNull,
       );
       expect(
@@ -78,8 +80,7 @@ void main() {
         isNull,
       );
       expect(
-        validateEndedAt(DateTime(2026, 11, 24),
-            isOngoing: false, today: today),
+        validateEndedAt(DateTime(2026, 11, 24), isOngoing: false, today: today),
         isNotNull,
       );
     });

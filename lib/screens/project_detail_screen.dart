@@ -35,10 +35,7 @@ class ProjectDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
-          Text(
-            project.title,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text(project.title, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
