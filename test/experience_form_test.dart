@@ -11,6 +11,12 @@ Future<void> openFormFromCard(WidgetTester tester) async {
   await tester.ensureVisible(find.text('Tambah Experience'));
   await tester.tap(find.text('Tambah Experience'));
   await tester.pumpAndSettle();
+  // SnackBar dari kartu menutupi bagian bawah layar test (tempat tombol
+  // Simpan), jadi ditutup dulu.
+  tester
+      .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+      .removeCurrentSnackBar();
+  await tester.pumpAndSettle();
 }
 
 Future<void> tapSave(WidgetTester tester) async {
@@ -26,14 +32,15 @@ Finder field(int index) => find.byType(TextFormField).at(index);
 /// Mencari teks hanya di dalam dialog, supaya isi TextFormField di belakang
 /// dialog tidak ikut terhitung.
 Finder inDialog(String text) => find.descendant(
-      of: find.byType(AlertDialog),
-      // Text.rich ikut dicocokkan lewat isi TextSpan-nya.
-      matching: find.textContaining(text),
-    );
+  of: find.byType(AlertDialog),
+  // Text.rich ikut dicocokkan lewat isi TextSpan-nya.
+  matching: find.textContaining(text),
+);
 
 void main() {
-  testWidgets('Kartu Tambah Experience membuka form dan Back kembali ke menu',
-      (WidgetTester tester) async {
+  testWidgets('Kartu Tambah Experience membuka form dan Back kembali ke menu', (
+    WidgetTester tester,
+  ) async {
     await openFormFromCard(tester);
     expect(find.text(formTitle), findsOneWidget);
 
@@ -42,8 +49,9 @@ void main() {
     expect(find.text(menuGreeting), findsOneWidget);
   });
 
-  testWidgets('Drawer membuka form, lalu Home dari form kembali ke menu',
-      (WidgetTester tester) async {
+  testWidgets('Drawer membuka form, lalu Home dari form kembali ke menu', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(buildTestApp());
 
     await tester.tap(find.byTooltip('Open navigation menu'));
@@ -63,27 +71,33 @@ void main() {
     expect(find.text(formTitle), findsNothing);
   });
 
-  testWidgets('Simpan dengan isian kosong atau spasi menampilkan pesan error',
-      (WidgetTester tester) async {
+  testWidgets('Simpan dengan isian kosong atau spasi menampilkan pesan error', (
+    WidgetTester tester,
+  ) async {
     await openFormFromCard(tester);
 
     await tapSave(tester);
     expect(find.text('Judul experience tidak boleh kosong!'), findsOneWidget);
-    expect(find.text('Deskripsi experience tidak boleh kosong!'),
-        findsOneWidget);
+    expect(
+      find.text('Deskripsi experience tidak boleh kosong!'),
+      findsOneWidget,
+    );
     expect(find.byType(AlertDialog), findsNothing);
 
     await tester.enterText(field(0), '   ');
     await tester.enterText(field(1), '<p></p>');
     await tapSave(tester);
     expect(find.text('Judul experience tidak boleh kosong!'), findsOneWidget);
-    expect(find.text('Deskripsi experience tidak boleh kosong!'),
-        findsOneWidget);
+    expect(
+      find.text('Deskripsi experience tidak boleh kosong!'),
+      findsOneWidget,
+    );
     expect(find.byType(AlertDialog), findsNothing);
   });
 
-  testWidgets('URL thumbnail dan tanggal selesai ikut divalidasi',
-      (WidgetTester tester) async {
+  testWidgets('URL thumbnail dan tanggal selesai ikut divalidasi', (
+    WidgetTester tester,
+  ) async {
     await openFormFromCard(tester);
     await tester.enterText(field(0), 'RISTEK Fasilkom UI');
     await tester.enterText(field(1), 'Game Development SIG.');
@@ -107,8 +121,9 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
   });
 
-  testWidgets('Isian valid menampilkan ringkasan, lalu Tutup kembali ke form',
-      (WidgetTester tester) async {
+  testWidgets('Isian valid menampilkan ringkasan, lalu Tutup kembali ke form', (
+    WidgetTester tester,
+  ) async {
     await openFormFromCard(tester);
     await tester.enterText(field(0), '<b>RISTEK Fasilkom UI</b>');
     await tester.enterText(field(1), 'Game Development SIG.');

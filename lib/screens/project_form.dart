@@ -103,6 +103,11 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
     try {
       final created = await api.createProject(project, token: auth.token!);
       if (!mounted) return;
+      // Matikan loading sebelum dialog muncul, supaya tombol Save tidak
+      // tetap berputar selama dialog terbuka.
+      setState(() {
+        _isSubmitting = false;
+      });
       await showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
@@ -113,7 +118,9 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Judul: ${created.title}'),
-                Text('Kategori: ${created.categoryDisplay ?? created.category}'),
+                Text(
+                  'Kategori: ${created.categoryDisplay ?? created.category}',
+                ),
                 Text('Status: ${created.statusDisplay ?? created.status}'),
                 Text('Role: ${created.role}'),
                 Text('Tech Stack: ${created.technologies}'),

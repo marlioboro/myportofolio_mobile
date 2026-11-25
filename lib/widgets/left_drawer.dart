@@ -33,8 +33,11 @@ class LeftDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // maxLines menjaga header tidak overflow di layar sempit.
                 Text(
                   'My Portfolio',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -44,6 +47,8 @@ class LeftDrawer extends StatelessWidget {
                 SizedBox(height: 10),
                 Text(
                   'Explore personal projects and experiences!',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 15, color: Colors.white),
                 ),
               ],
