@@ -44,7 +44,9 @@ void main() {
     await openFormFromCard(tester);
     expect(find.text(formTitle), findsOneWidget);
 
-    await tester.pageBack();
+    // Form punya drawer, jadi AppBar menampilkan ikon menu, bukan tombol back.
+    // Ini mensimulasikan tombol Back bawaan perangkat/browser.
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text(menuGreeting), findsOneWidget);
   });
